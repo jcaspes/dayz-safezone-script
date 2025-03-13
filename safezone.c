@@ -3,8 +3,9 @@ class SafeZone_PlugIn
 	protected bool Activate_SafeZone_PlugIn = true; // safezone on (true) or off (false)
 	protected float SAFEZONE_time_repeat_checking = 10; //In seconds
 	
-	ref static TStringArray SAFEZONE_LOACTIONS = {"6974.876465 388.432281 11345.492188"};//Map coords (positions of the safe zone)
+	// "6307.81 2000 9511.72"
 	protected static float  SAFEZONE_RADIUS   = 800; //In meter
+	ref static TStringArray SAFEZONE_LOCATIONS;
 	protected static string SAFEZONE_ENTRY_MESSAGE     = "You are in the safezone you canot be harmed";
 	protected static string SAFEZONE_EXIT_MESSAGE      = "You left the safezone you can now be harmed";
 		
@@ -13,6 +14,7 @@ class SafeZone_PlugIn
 	{
 		if(Activate_SafeZone_PlugIn)
 		{
+			SAFEZONE_LOCATIONS = {"6974.876465 388.432281 11345.492188"};//Map coords (positions of the safe zone)
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(RunCheckStart, (SAFEZONE_time_repeat_checking * 1000), true); 
 		}
 	}
@@ -21,11 +23,11 @@ class SafeZone_PlugIn
 	{
 		private array<Man> players = new array<Man>;
 		GetGame().GetPlayers( players );
-		if (SAFEZONE_LOACTIONS.Count() > 0)
+		if (SAFEZONE_LOCATIONS.Count() > 0)
 		{
 			if (players.Count() > 0)
 			{
-				foreach(string SAFEZONE_LOACTION: SAFEZONE_LOACTIONS)
+				foreach(string SAFEZONE_LOCATION: SAFEZONE_LOCATIONS)
 				{
 					if( players.Count() > 0 )
 					{
@@ -34,7 +36,7 @@ class SafeZone_PlugIn
 							if(player)
 							{
 								private PlayerBase player_casted = PlayerBase.Cast(player);
-								CheckingPosition(player_casted,SAFEZONE_LOACTION.ToVector());
+								CheckingPosition(player_casted,SAFEZONE_LOCATION.ToVector());
 							}
 						}
 				   }
@@ -43,7 +45,7 @@ class SafeZone_PlugIn
 		}
 	}
 
-	static void CheckingPosition(PlayerBase player,vector SAFEZONE_LOACTION)
+	static void CheckingPosition(PlayerBase player,vector SAFEZONE_LOCATION)
 	{
 		private float SAFEZONE_distance;
 		private string SAFEZONE_ZoneCheck, SAFEZONE_UID_PLAYER, SAFEZONE_NAME_PLAYER;
@@ -51,8 +53,8 @@ class SafeZone_PlugIn
 		SAFEZONE_UID_PLAYER = player.GetIdentity().GetPlainId(); //Steam 64	
 
 		private vector SAFEZONE_pos_player = player.GetPosition();
-		private vector SAFEZONE_LOCATION_FIXED = CorrectToGroundPosY(SAFEZONE_LOACTION);
-		private string name_mesage_profile = "GodModeEnabledFor: " + SAFEZONE_UID_PLAYER + " Location: " + SAFEZONE_LOACTION.ToString();
+		private vector SAFEZONE_LOCATION_FIXED = CorrectToGroundPosY(SAFEZONE_LOCATION);
+		private string name_mesage_profile = "GodModeEnabledFor: " + SAFEZONE_UID_PLAYER + " Location: " + SAFEZONE_LOCATION.ToString();
 		SAFEZONE_distance = vector.Distance(SAFEZONE_pos_player,SAFEZONE_LOCATION_FIXED);
 		if (SAFEZONE_distance <= SAFEZONE_RADIUS) //Player Inside Zone
 		{
@@ -120,12 +122,13 @@ class SafeZone_PlugIn
 		}
 	}
 }
-ref SafeZone_PlugIn SafeZone = new SafeZone_PlugIn();
+ref SafeZone_PlugIn SafeZone;
 modded class CustomMission
 {	
 	override void OnInit () 
     {
 		super.OnInit();
+		SafeZone = new SafeZone_PlugIn();
 		SafeZone.OnInit();		
     }
 }
