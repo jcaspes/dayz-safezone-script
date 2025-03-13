@@ -4,8 +4,8 @@ class SafeZone_PlugIn
 	protected float SAFEZONE_time_repeat_checking = 10; //In seconds
 	
 	// "6307.81 2000 9511.72"
-	ref static TStringArray SAFEZONE_LOCATIONS = {"6974.876465 388.432281 11345.492188"};//Map coords (positions of the safe zone)
 	protected static float  SAFEZONE_RADIUS   = 800; //In meter
+	ref static TStringArray SAFEZONE_LOCATIONS;
 	protected static string SAFEZONE_ENTRY_MESSAGE     = "You are in the safezone you canot be harmed";
 	protected static string SAFEZONE_EXIT_MESSAGE      = "You left the safezone you can now be harmed";
 		
@@ -14,6 +14,7 @@ class SafeZone_PlugIn
 	{
 		if(Activate_SafeZone_PlugIn)
 		{
+			SAFEZONE_LOCATIONS = {"6974.876465 388.432281 11345.492188"};//Map coords (positions of the safe zone)
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(RunCheckStart, (SAFEZONE_time_repeat_checking * 1000), true); 
 		}
 	}
@@ -121,12 +122,13 @@ class SafeZone_PlugIn
 		}
 	}
 }
-ref SafeZone_PlugIn SafeZone = new SafeZone_PlugIn();
+ref SafeZone_PlugIn SafeZone;
 modded class CustomMission
 {	
 	override void OnInit () 
     {
 		super.OnInit();
+		SafeZone = new SafeZone_PlugIn();
 		SafeZone.OnInit();		
     }
 }
